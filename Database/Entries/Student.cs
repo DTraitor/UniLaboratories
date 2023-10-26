@@ -19,7 +19,7 @@ public class Student : Entry
         set
         {
             if(!Regex.IsMatch(value, "^КВ-\\d{8}$"))
-                throw new ArgumentException("Student ID Card value should be between 0 and 99999999.");
+                throw new ArgumentException("Student ID Card value should be between КВ-00000000 and КВ-99999999.");
             studentCardId = value;
         }  
     }
@@ -30,7 +30,7 @@ public class Student : Entry
         set
         {
             if(!Regex.IsMatch(value, "^\\d{8}$"))
-                throw new ArgumentException("Grade Book value should be between 0 and 99999999.");
+                throw new ArgumentException("Grade Book value should be between 00000000 and 99999999.");
             gradeBook = value;
         }  
     }

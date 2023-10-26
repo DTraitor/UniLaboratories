@@ -1,6 +1,10 @@
-﻿namespace Database.Entries.Abilities;
+﻿using System.Text.Json.Serialization;
 
-public interface IMultiplyBigNumbers
+namespace Database.Entries.Abilities;
+
+[JsonDerivedType(typeof(CanMultiply), "canMultiply")]
+[JsonDerivedType(typeof(CanNotMultiply), "cantMultiply")]
+public interface IMultiplyBigNumbers : IAbility
 {
     public string Multiply();
 }

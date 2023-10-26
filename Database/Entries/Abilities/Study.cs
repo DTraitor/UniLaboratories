@@ -1,6 +1,10 @@
-﻿namespace Database.Entries.Abilities;
+﻿using System.Text.Json.Serialization;
 
-public interface IStudy
+namespace Database.Entries.Abilities;
+
+[JsonDerivedType(typeof(CanStudy), "canStudy")]
+[JsonDerivedType(typeof(CanNotStudy), "cantStudy")]
+public interface IStudy : IAbility
 {
     public string Study();
 }

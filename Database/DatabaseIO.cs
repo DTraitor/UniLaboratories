@@ -19,10 +19,10 @@ public class DatabaseIO
         
         for(uint i = 0; i < lines.Length; i+=2)
         {
+            Type objectType = Type.GetType(lines[i]); 
             string objectData = lines[i+1];
-            Type objectType = Type.GetType("Database." + lines[i]); 
             entries[i/2] = JsonSerializer.Deserialize(objectData, objectType) as Entry;
-            entries[i/2].PositionDB = i;
+            entries[i/2].PositionDB = i/2;
         }
 
         return entries;
@@ -53,7 +53,7 @@ public class DatabaseIO
                 if (i == entry.PositionDB)
                 {
                     writer.WriteLine($"{entry.GetType()}");
-                    writer.WriteLine(JsonSerializer.Serialize(entry));
+                    writer.WriteLine(JsonSerializer.Serialize<object>(entry));
                     continue;
                 }
                 writer.WriteLine(lines[i]);
@@ -73,7 +73,7 @@ public class DatabaseIO
                 writer.WriteLine(lines[i + 1]);
             }
             writer.WriteLine($"{entry.GetType()}");
-            writer.WriteLine(JsonSerializer.Serialize(entry));
+            writer.WriteLine(JsonSerializer.Serialize<object>(entry));
             for (uint i = position * 2; i < lines.Length; i += 2)
             {
                 writer.WriteLine(lines[i]);

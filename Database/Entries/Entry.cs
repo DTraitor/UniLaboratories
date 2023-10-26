@@ -9,10 +9,10 @@ public abstract class Entry
     [DatabaseAbilityFunction("Multiply")]
     public string MultiplyAbility() => MultiplyBigNumbers.Multiply();
     
-    [DatabaseVariable("First Name")]
-    public string FirstName { get; set; }
     [DatabaseVariable("Last Name")]
     public string LastName { get; set; }
+    [DatabaseVariable("First Name")]
+    public string FirstName { get; set; }
     [DatabaseAbilityVariable("Multiply Big Numbers")]
     public IMultiplyBigNumbers MultiplyBigNumbers { get; set; }
 
@@ -27,7 +27,7 @@ public abstract class Entry
         string result = "";
         for (int i = 0; i < methods.Length; i++)
         {
-            result += $"{i}. {methods[i].GetCustomAttribute<DatabaseAbilityFunction>().Name}\n";
+            result += $"\n{methods[i].GetCustomAttribute<DatabaseAbilityFunction>().Name}";
         }
         return result;
     }
@@ -37,19 +37,29 @@ public abstract class Entry
         return GetType().GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(DatabaseVariable))).ToArray();
     }
 
+    public PropertyInfo[] GetPossibleAbilityVariables()
+    {
+        return GetType().GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(DatabaseAbilityVariable))).ToArray();
+    }
+
+    public string GetPossibleAbilitiesAsString()
+    {
+        return "";
+    }
+    
     public override string ToString()
     {
-        string result = $"{GetType()} {PositionDB}:\n";
-        foreach (PropertyInfo property in GetType().GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(DatabaseVariable))))
+        string result = $"Type: {GetType().Name}\nPosition: {PositionDB}";
+        foreach (PropertyInfo property in GetType().GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(DatabaseVariable))).Reverse())
         {
-            result += $"{property.GetCustomAttribute<DatabaseVariable>().Name}: {property.GetValue(this)}\n";
+            result += $"\n{property.GetCustomAttribute<DatabaseVariable>().Name}: {property.GetValue(this)}";
         }
         return result;
     }
 
     public string GetSmallString()
     {
-        return $"{PositionDB}. {GetType()} | {FirstName} | {LastName}";
+        return $"{PositionDB}. {GetType().Name} | {FirstName} | {LastName}";
     }
     
     // Position in the database. Tracked by the user

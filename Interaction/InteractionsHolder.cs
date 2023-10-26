@@ -12,6 +12,7 @@ public class InteractionsHolder
         database = new DatabaseIO("Database.txt");
         databaseData = database.ReadData();
         ChildTypes = Assembly.GetAssembly(typeof(Entry)).GetTypes().Where(t => t is { IsClass: true, IsAbstract: false } && t.IsSubclassOf(typeof(Entry))).ToArray();
+        AbilityTypes = Assembly.GetAssembly(typeof(IAbility)).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.GetInterfaces().Contains(typeof(IAbility))).ToArray();
     }
 
     public string GetEntriesAsString(uint page)
@@ -30,7 +31,14 @@ public class InteractionsHolder
         return result;
     }
     
-    public Entry[] GetEntries(uint page)
+    public string GetEntryAsString(uint key)
+    {
+        if(key >= databaseData.Length)
+            throw new ArgumentException("Entry key is too big.");
+        return databaseData[key].ToString();
+    }
+    
+    private Entry[] GetEntries(uint page)
     {
         if(page > databaseData.Length / EntriesPerPage)
             throw new ArgumentException("Page number is too big.");
@@ -39,14 +47,21 @@ public class InteractionsHolder
             result[i] = databaseData[page * EntriesPerPage + i];
         return result;
     }
+
+    public Entry GetEntry(uint key)
+    {
+        if (key >= databaseData.Length)
+            throw new ArgumentException("Entry key is too big.");
+        return databaseData[key];
+    }
     
     public string GetPossibleFunctions(uint key)
     {
         if(key >= databaseData.Length)
             throw new ArgumentException("Entry key is too big.");
-        return $"This object can execute the following functions:\n{databaseData[key].GetPossibleFunctionsAsString()}";
+        return $"This object can execute the following functions:{databaseData[key].GetPossibleFunctionsAsString()}";
     }
-    
+
     public Entry CreateTemplateEntry(string stype)
     {
         Type? type = Type.GetType("Database.Entries." + stype +", Database");
@@ -69,9 +84,25 @@ public class InteractionsHolder
             throw new ArgumentException("Wrong property.");
         if(propertyInfo.PropertyType != typeof(string))
             throw new ArgumentException("Wrong property.");
-        propertyInfo.SetValue(entry, value);
+        try
+        {
+            propertyInfo.SetValue(entry, value);
+        }
+        catch (TargetInvocationException e)
+        {
+            throw e.InnerException ?? e;
+        }
     }
 
+    public void SetAbilityValue(Entry entry, PropertyInfo abilityVar, string className)
+    {
+        Type ability = AbilityTypes.FirstOrDefault(type => type.Name == className);
+        if(ability == null)
+            throw new ArgumentException("Wrong ability type.");
+        IAbility instance = Activator.CreateInstance(ability) as IAbility;
+        abilityVar.SetValue(entry, instance);
+    }
+    
     public void AddEntry(Entry entry, uint position)
     {
         if(position > databaseData.Length)
@@ -87,23 +118,32 @@ public class InteractionsHolder
         database.AddEntry(entry, position);
     }
     
-    public string CallFunction(uint key, uint functionKey)
+    public void DeleteEntry(uint key)
+    {
+        if(key >= databaseData.Length)
+            throw new ArgumentException("Entry key is too big.");
+        for (uint i = key; i < databaseData.Length - 1; i++)
+        {
+            databaseData[i] = databaseData[i + 1];
+            databaseData[i].PositionDB = i;
+        }
+        Array.Resize(ref databaseData, databaseData.Length - 1);
+        database.DeleteEntry(key);
+    }
+    
+    public string CallFunction(uint key, string functionName)
     {
         if(key > databaseData.Length)
             throw new ArgumentException("Entry key is too big.");
-        Func<string> function;
-        try
-        {
-            function = Delegate.CreateDelegate(typeof(Func<string>), databaseData[key],
-                databaseData[key].GetPossibleFunctions()[functionKey]) as Func<string>;
-        }
-        catch (IndexOutOfRangeException e)
-        {
-            throw new ArgumentException("Function doesn't exist.");
-        }
+        MethodInfo[] methods = databaseData[key].GetPossibleFunctions();
+        MethodInfo? method = methods.FirstOrDefault(m => m.GetCustomAttribute<DatabaseAbilityFunction>().Name == functionName);
+        if(method == null)
+            throw new ArgumentException("Wrong function name.");
+        Func<string> function = Delegate.CreateDelegate(typeof(Func<string>), databaseData[key], method) as Func<string>;
         return function();
     }
 
+    public readonly Type[] AbilityTypes;
     public readonly Type[] ChildTypes;
     private Entry[] databaseData;
     private DatabaseIO database;
