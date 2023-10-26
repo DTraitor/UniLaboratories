@@ -9,7 +9,7 @@ public class Student : Entry
     [DatabaseAbilityFunction("Study")]
     public string StudyAbility() => Study.Study();
     [DatabaseAbilityVariable("Study")]
-    public IStudy Study { get; set; }
+    public StudyAbility Study { get; set; }
     [DatabaseVariable("Sex")]
     public string Sex { get; set; }
     [DatabaseVariable("Student Card ID")]

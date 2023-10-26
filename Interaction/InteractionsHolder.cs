@@ -12,7 +12,7 @@ public class InteractionsHolder
         database = new DatabaseIO("Database.txt");
         databaseData = database.ReadData();
         ChildTypes = Assembly.GetAssembly(typeof(Entry)).GetTypes().Where(t => t is { IsClass: true, IsAbstract: false } && t.IsSubclassOf(typeof(Entry))).ToArray();
-        AbilityTypes = Assembly.GetAssembly(typeof(IAbility)).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.GetInterfaces().Contains(typeof(IAbility))).ToArray();
+        AbilityTypes = Assembly.GetAssembly(typeof(EntryAbility)).GetTypes().Where(t => t is {IsClass: true, IsAbstract: false} && t.IsSubclassOf(typeof(EntryAbility))).ToArray();
     }
 
     public string GetEntriesAsString(uint page)
@@ -99,7 +99,7 @@ public class InteractionsHolder
         Type ability = AbilityTypes.FirstOrDefault(type => type.Name == className);
         if(ability == null)
             throw new ArgumentException("Wrong ability type.");
-        IAbility instance = Activator.CreateInstance(ability) as IAbility;
+        EntryAbility instance = Activator.CreateInstance(ability) as EntryAbility;
         abilityVar.SetValue(entry, instance);
     }
     

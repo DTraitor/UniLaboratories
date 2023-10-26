@@ -4,19 +4,19 @@ namespace Database.Entries.Abilities;
 
 [JsonDerivedType(typeof(CanPhoto), "canPhoto")]
 [JsonDerivedType(typeof(CanNotPhoto), "cantPhoto")]
-public interface IPhoto : IAbility
+public abstract class PhotoAbility : EntryAbility
 {
-    public string TakePhoto();
+    public abstract string TakePhoto();
 }
 
 [DatabaseAbilityDescription("Can take photos.")]
-public class CanPhoto : IPhoto
+public class CanPhoto : PhotoAbility
 {
-    public string TakePhoto() => "They took a photo.";
+    public override string TakePhoto() => "They took a photo.";
 }
 
 [DatabaseAbilityDescription("Can't take photos.")]
-public class CanNotPhoto : IPhoto
+public class CanNotPhoto : PhotoAbility
 {
-    public string TakePhoto() => "They are unable to take photos.";
+    public override string TakePhoto() => "They are unable to take photos.";
 }

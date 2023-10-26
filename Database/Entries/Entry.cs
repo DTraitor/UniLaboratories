@@ -14,7 +14,7 @@ public abstract class Entry
     [DatabaseVariable("First Name")]
     public string FirstName { get; set; }
     [DatabaseAbilityVariable("Multiply Big Numbers")]
-    public IMultiplyBigNumbers MultiplyBigNumbers { get; set; }
+    public MultiplyBigNumbers MultiplyBigNumbers { get; set; }
 
     public MethodInfo[] GetPossibleFunctions()
     {

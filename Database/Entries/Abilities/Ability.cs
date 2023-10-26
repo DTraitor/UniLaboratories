@@ -1,6 +1,6 @@
 ﻿namespace Database.Entries.Abilities;
 
-public interface IAbility
+public abstract class EntryAbility
 {
-    //That's it. All the interface lmao
+    //That's it. All the class lmao
 }

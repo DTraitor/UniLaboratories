@@ -4,19 +4,19 @@ namespace Database.Entries.Abilities;
 
 [JsonDerivedType(typeof(CanStudy), "canStudy")]
 [JsonDerivedType(typeof(CanNotStudy), "cantStudy")]
-public interface IStudy : IAbility
+public abstract class StudyAbility : EntryAbility
 {
-    public string Study();
+    public abstract string Study();
 }
 
 [DatabaseAbilityDescription("Can study.")]
-public class CanStudy : IStudy
+public class CanStudy : StudyAbility
 {
-    public string Study() => "Studied successfully!";
+    public override string Study() => "Studied successfully!";
 }
 
 [DatabaseAbilityDescription(".")]
-public class CanNotStudy : IStudy
+public class CanNotStudy : StudyAbility
 {
-    public string Study() => "They are unable study!";
+    public override string Study() => "They are unable study!";
 }

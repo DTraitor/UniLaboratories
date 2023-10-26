@@ -4,20 +4,20 @@ namespace Database.Entries.Abilities;
 
 [JsonDerivedType(typeof(CanFixTable), "canFixTable")]
 [JsonDerivedType(typeof(CanNotFixTable), "cantFixTable")]
-public interface IFixTable : IAbility
+public abstract class FixTableAbility : EntryAbility
 {
-    public string FixTable();
+    public abstract string FixTable();
 }
 
 [DatabaseAbilityDescription("Can fix tables.")]
-public class CanFixTable : IFixTable
+public class CanFixTable : FixTableAbility
 {
-    public string FixTable() => "They fixed a table.";
+    public override string FixTable() => "They fixed a table.";
 }
 
 [DatabaseAbilityDescription("Can't fix tables.")]
-public class CanNotFixTable : IFixTable
+public class CanNotFixTable : FixTableAbility
 {
-    public string FixTable() => "They are unable o fix tables.";
+    public override string FixTable() => "They are unable o fix tables.";
 }
 

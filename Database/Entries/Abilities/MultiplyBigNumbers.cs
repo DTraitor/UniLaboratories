@@ -4,20 +4,20 @@ namespace Database.Entries.Abilities;
 
 [JsonDerivedType(typeof(CanMultiply), "canMultiply")]
 [JsonDerivedType(typeof(CanNotMultiply), "cantMultiply")]
-public interface IMultiplyBigNumbers : IAbility
+public abstract class MultiplyBigNumbers : EntryAbility
 {
-    public string Multiply();
+    public abstract string Multiply();
 }
 
 [DatabaseAbilityDescription("Can multiply big numbers.")]
-public class CanMultiply : IMultiplyBigNumbers
+public class CanMultiply : MultiplyBigNumbers
 {
-    public string Multiply() => "They know how to multiply big numbers.";
+    public override string Multiply() => "They know how to multiply big numbers.";
 }
 
 [DatabaseAbilityDescription("Can't multiply big numbers.")]
-public class CanNotMultiply : IMultiplyBigNumbers
+public class CanNotMultiply : MultiplyBigNumbers
 {
-    public string Multiply() => "They don't know how to multiply big numbers.";
+    public override string Multiply() => "They don't know how to multiply big numbers.";
 }
 
