@@ -17,6 +17,7 @@ public class ConsoleMenu
             new FunctionInfo("del", DeleteEntry),
             new FunctionInfo("edit", EditEntry),
             new FunctionInfo("call", CallEntryAbility),
+            new FunctionInfo("special", SpecialFunction),
             new FunctionInfo("quit", args => System.Console.WriteLine("Bye!"))
         };
     }
@@ -109,7 +110,7 @@ public class ConsoleMenu
             try
             {
                 var tempEntry = holder.CreateTemplateEntry(input);
-                foreach (PropertyInfo property in tempEntry.GetPossibleVariables())
+                foreach (PropertyInfo property in tempEntry.GetPossibleVariables().Reverse())
                 {
                     while (true)
                     {
@@ -136,7 +137,7 @@ public class ConsoleMenu
                 }
                 foreach (PropertyInfo abilityProp in tempEntry.GetPossibleAbilityVariables())
                 {
-                    Type[] possibleAbilities = holder.AbilityTypes.Where(type => type.GetInterfaces().Contains(abilityProp.PropertyType)).ToArray();
+                    Type[] possibleAbilities = holder.AbilityTypes.Where(type => type is {IsClass: true, IsAbstract: false} && type.IsSubclassOf(abilityProp.PropertyType)).ToArray();
                     while (true)
                     {
                         System.Console.Write($"Choose one '{abilityProp.GetCustomAttribute<DatabaseAbilityVariable>().Name}' ability");
@@ -322,7 +323,7 @@ public class ConsoleMenu
                             }
                             System.Console.WriteLine("Wrong ability number.");
                         }
-                        Type[] possibleAbilityTypes = holder.AbilityTypes.Where(type => type.GetInterfaces().Contains(abilityToEdit.PropertyType)).ToArray();
+                        Type[] possibleAbilityTypes = holder.AbilityTypes.Where(type => type is {IsClass: true, IsAbstract: false} && type.IsSubclassOf(abilityToEdit.PropertyType)).ToArray();
                         System.Console.WriteLine("Choose new ability ('cancel' to exit):");
                         for (int i = 1; i <= possibleAbilityTypes.Length; i++)
                         {
@@ -356,6 +357,11 @@ public class ConsoleMenu
             }
         }
         System.Console.WriteLine("Entry key should be a positive integer.");
+    }
+
+    private void SpecialFunction(string[] args)
+    {
+        System.Console.WriteLine(holder.SpecialTask());
     }
 
     private void CallEntryAbility(string[] args)

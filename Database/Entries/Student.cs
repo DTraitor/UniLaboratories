@@ -12,6 +12,8 @@ public class Student : Entry
     public StudyAbility Study { get; set; }
     [DatabaseVariable("Sex")]
     public string Sex { get; set; }
+    [DatabaseVariable("Place of residence")]
+    public string Residence { get; set; }
     [DatabaseVariable("Student Card ID")]
     public string StudentCardId 
     {
@@ -34,9 +36,23 @@ public class Student : Entry
             gradeBook = value;
         }  
     }
-    
+
+    [DatabaseVariable("Year of study")]
+    public string YearOfStudy
+    {
+        get => yearOfStudy;
+        set
+        {
+            if(!Regex.IsMatch(value, "^(1|2|3|4|5|6)$"))
+                throw new ArgumentException("Year of study should be between 1 and 6.");
+            yearOfStudy = value;
+        }
+    }
+
     [JsonIgnore]
     private string studentCardId;
     [JsonIgnore]
     private string gradeBook;
+    [JsonIgnore]
+    private string yearOfStudy;
 }
