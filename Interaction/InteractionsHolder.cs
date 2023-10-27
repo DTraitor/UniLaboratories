@@ -150,18 +150,18 @@ public class InteractionsHolder
 
     public string SpecialTask()
     {
-        Student[] entries = databaseData.Where(entry => entry is Student).ToArray() as Student[];
+        Student[] entries = Array.ConvertAll(databaseData.Where(entry => entry is Student).ToArray(), entry => entry as Student);
         Student[] requested = entries.Where(entry => entry is { Sex: "F", Residence: "Kyiv", YearOfStudy: "5" }).ToArray();
 
         if(requested.Length == 0)
-            return "No entries found.\n";
+            return "No entries found.";
 
         string result = "";
         foreach (Student entry in requested)
         {
             result += entry.GetSmallString() + "\n";
         }
-        return result;
+        return result.TrimEnd('\n');
     }
 
     public readonly Type[] AbilityTypes;
