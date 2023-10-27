@@ -143,6 +143,11 @@ public class InteractionsHolder
         return function();
     }
 
+    public void UpdateEntry(Entry entry)
+    {
+        database.UpdateEntry(entry);
+    }
+
     public readonly Type[] AbilityTypes;
     public readonly Type[] ChildTypes;
     private Entry[] databaseData;

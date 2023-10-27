@@ -300,6 +300,7 @@ public class ConsoleMenu
                                 System.Console.WriteLine(e.Message);
                             }
                         }
+                        holder.UpdateEntry(entryToEdit);
                         return;
                     case "2":
                         System.Console.WriteLine("Choose ability to edit ('cancel' to exit):");
@@ -346,6 +347,7 @@ public class ConsoleMenu
                             }
                             System.Console.WriteLine("Wrong ability number.");
                         }
+                        holder.UpdateEntry(entryToEdit);
                         return;
                     case "cancel":
                         return;
