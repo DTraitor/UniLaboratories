@@ -1,5 +1,12 @@
-﻿namespace DataAccessLayer.Abilities;
+﻿using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
+namespace DataAccessLayer.Abilities;
+
+[XmlInclude(typeof(CanStudy))]
+[XmlInclude(typeof(CanNotStudy))]
+[JsonDerivedType(typeof(CanStudy), "CanStudy")]
+[JsonDerivedType(typeof(CanNotStudy), "CanNotStudy")]
 public interface IStudy
 {
     public delegate void StudyHandler(bool studied);
@@ -15,7 +22,7 @@ public class CanStudy : IStudy
     }
 }
 
-public class CanNotStudy
+public class CanNotStudy : IStudy
 {
     public string Study(IStudy.StudyHandler studyHandler)
     {

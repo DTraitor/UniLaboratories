@@ -1,25 +1,28 @@
 ﻿using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace DataAccessLayer.Entities;
 
-internal class Joiner : Entity
+[Serializable]
+public class Joiner : Entity
 {
     public Joiner() : base() {}
 
     public Joiner(SerializationInfo info, StreamingContext context) : base(info, context)
     {
-        price = (int)info.GetValue("Price", typeof(int));
+        Price = (int)info.GetValue("Price", typeof(int));
     }
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         base.GetObjectData(info, context);
-        info.AddValue("Price", price);
+        info.AddValue("Price", Price);
     }
 
     public override string GetData()
     {
-        return base.GetData() + $"Price: {price}\n";
+        return base.GetData() + $"Price: {Price}\n";
     }
 
     public override List<string> GetEditableData()
@@ -34,12 +37,24 @@ internal class Joiner : Entity
         {
             case "Price":
                 if (int.TryParse(value, out var price))
-                    this.price = price;
+                    this.Price = price;
                 else
                     throw new CustomException("Should be an integer!");
                 break;
         }
     }
 
-    private int price;
+    public override void ReadXml(XmlReader reader)
+    {
+        base.ReadXml(reader);
+        Price = int.Parse(reader.GetAttribute("Price"));
+    }
+
+    public override void WriteXml(XmlWriter writer)
+    {
+        base.WriteXml(writer);
+        writer.WriteAttributeString("Price", Price.ToString());
+    }
+
+    public int Price;
 }

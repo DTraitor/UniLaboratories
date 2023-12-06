@@ -2,28 +2,29 @@
 
 namespace DataAccessLayer.Providers;
 
-internal class JsonProvider<T> : ISerializationProvider<T> where T : class
+internal class JsonProvider : ISerializationProvider
 {
     public JsonProvider(string file)
     {
         stream = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
     }
 
-    public List<T> Read()
+    public EntityList Read()
     {
         using StreamReader reader = new StreamReader(stream, leaveOpen: true);
         try
         {
-            return JsonSerializer.Deserialize<List<T>>(reader.ReadToEnd());
+            return JsonSerializer.Deserialize<EntityList>(reader.ReadToEnd(), new JsonSerializerOptions());
         }
         catch (JsonException e)
         {
-            return new List<T>();
+            return new EntityList();
         }
     }
 
-    public void Write(List<T> entities)
+    public void Write(EntityList entities)
     {
+        stream.SetLength(0);
         using StreamWriter writer = new StreamWriter(stream, leaveOpen: true);
         writer.Write(JsonSerializer.Serialize(entities));
     }

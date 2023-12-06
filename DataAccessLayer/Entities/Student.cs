@@ -1,43 +1,47 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Serialization;
 using DataAccessLayer.Abilities;
 using DataAccessLayer;
 
 namespace DataAccessLayer.Entities;
 
-internal class Student : Entity
+[Serializable]
+public class Student : Entity
 {
     public Student() : base() {}
 
     public Student(SerializationInfo info, StreamingContext context) : base(info, context)
     {
-        course = (int)info.GetValue("Course", typeof(int));
-        studentId = (string)info.GetValue("StudentID", typeof(string));
-        sex = (string)info.GetValue("Sex", typeof(string));
-        residence = (string)info.GetValue("Residence", typeof(string));
-        gradeBook = (string)info.GetValue("GradeBook", typeof(string));
+        Course = (int)info.GetValue("Course", typeof(int));
+        StudentId = (string)info.GetValue("StudentID", typeof(string));
+        Sex = (string)info.GetValue("Sex", typeof(string));
+        Residence = (string)info.GetValue("Residence", typeof(string));
+        GradeBook = (string)info.GetValue("GradeBook", typeof(string));
         var type = (string)info.GetValue("StudyAbility", typeof(string));
         var typeToSet = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(x => x.GetTypes())
             .Where(x => typeof(IStudy).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
             .FirstOrDefault(x => x.Name == type);
-        studyAbility = (IStudy)Activator.CreateInstance(typeToSet);
+        StudyAbility = (IStudy)Activator.CreateInstance(typeToSet);
     }
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         base.GetObjectData(info, context);
-        info.AddValue("Course", course);
-        info.AddValue("StudentID", studentId);
-        info.AddValue("Sex", sex);
-        info.AddValue("Residence", residence);
-        info.AddValue("GradeBook", gradeBook);
-        info.AddValue("StudyAbility", studyAbility.GetType().Name);
+        info.AddValue("Course", Course);
+        info.AddValue("StudentID", StudentId);
+        info.AddValue("Sex", Sex);
+        info.AddValue("Residence", Residence);
+        info.AddValue("GradeBook", GradeBook);
+        info.AddValue("StudyAbility", StudyAbility.GetType().Name);
     }
 
     public override string GetData()
     {
-        return base.GetData() + $"Course: {course}\nStudent ID: {studentId}\nSex: {sex}\nResidence: {residence}\nGrade book: {gradeBook}\n";
+        return base.GetData() + $"Course: {Course}\nStudent ID: {StudentId}\nSex: {Sex}\nResidence: {Residence}\nGrade book: {GradeBook}\n";
     }
 
     public override List<string> GetEditableData()
@@ -52,28 +56,28 @@ internal class Student : Entity
         {
             case "Course":
                 if (int.TryParse(value, out var course))
-                    this.course = course;
+                    this.Course = course;
                 else
                     throw new CustomException("Should be an integer!");
                 break;
-            case "Student ID":
+            case "StudentID":
                 if (studentIdRegex.IsMatch(value))
-                    studentId = value;
+                    StudentId = value;
                 else
                     throw new CustomException("Should be in format XX-YYYYYYYY!");
                 break;
             case "Sex":
                 if (value == "M" || value == "F")
-                    sex = value;
+                    Sex = value;
                 else
                     throw new CustomException("Should be M or F!");
                 break;
             case "Residence":
-                residence = value;
+                Residence = value;
                 break;
             case "GradeBook":
                 if (gradeBookRegex.IsMatch(value))
-                    gradeBook = value;
+                    GradeBook = value;
                 else
                     throw new CustomException("Should be exactly 8 digits!");
                 break;
@@ -90,10 +94,10 @@ internal class Student : Entity
         switch (ability)
         {
             case "Study":
-                return studyAbility.Study((success) =>
+                return StudyAbility.Study((success) =>
                 {
                     if (success)
-                        course++;
+                        Course++;
                 });
         }
         return base.UseAbility(ability);
@@ -124,18 +128,47 @@ internal class Student : Entity
                     .FirstOrDefault(x => x.Name == type);
                 if (typeToSet == null)
                     throw new CustomException("This type does not exist!");
-                studyAbility = (IStudy)Activator.CreateInstance(typeToSet);
-                break;
+                StudyAbility = (IStudy)Activator.CreateInstance(typeToSet);
+                return;
         }
         base.SetAbilityType(ability, type);
     }
 
-    private int course;
-    private string studentId;
-    private string sex;
-    private string residence;
-    private string gradeBook;
-    private IStudy studyAbility;
+    public override void ReadXml(XmlReader reader)
+    {
+        base.ReadXml(reader);
+        Course = int.Parse(reader.GetAttribute("Course"));
+        StudentId = reader.GetAttribute("StudentID");
+        Sex = reader.GetAttribute("Sex");
+        Residence = reader.GetAttribute("Residence");
+        GradeBook = reader.GetAttribute("GradeBook");
+        var type = reader.GetAttribute("StudyAbility");
+        var typeToSet = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(x => x.GetTypes())
+            .Where(x => typeof(IStudy).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
+            .FirstOrDefault(x => x.Name == type);
+        if (typeToSet == null)
+            throw new CustomException("This type does not exist!");
+        StudyAbility = (IStudy)Activator.CreateInstance(typeToSet);
+    }
+
+    public override void WriteXml(XmlWriter writer)
+    {
+        base.WriteXml(writer);
+        writer.WriteAttributeString("Course", Course.ToString());
+        writer.WriteAttributeString("StudentID", StudentId);
+        writer.WriteAttributeString("Sex", Sex);
+        writer.WriteAttributeString("Residence", Residence);
+        writer.WriteAttributeString("GradeBook", GradeBook);
+        writer.WriteAttributeString("StudyAbility", StudyAbility.GetType().FullName);
+    }
+
+    public int Course { get; set; }
+    public string StudentId { get; set; }
+    public string Sex { get; set; }
+    public string Residence { get; set; }
+    public string GradeBook { get; set; }
+    public IStudy StudyAbility { get; set; }
     private static readonly Regex studentIdRegex = new(@"^[А-Я]{2}-\d{8}$");
     private static readonly Regex gradeBookRegex = new(@"^\d{8}$");
 }

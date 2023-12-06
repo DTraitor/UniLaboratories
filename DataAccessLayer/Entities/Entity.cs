@@ -1,16 +1,27 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+using System.Xml;
+using System.Xml.Serialization;
 using DataAccessLayer.Abilities;
 
 namespace DataAccessLayer.Entities;
 
-internal class Entity : ISerializable
+[JsonDerivedType(typeof(Photographer), "Photographer")]
+[JsonDerivedType(typeof(Joiner), "Joiner")]
+[JsonDerivedType(typeof(Student), "Student")]
+[Serializable]
+[XmlInclude(typeof(Photographer))]
+[XmlInclude(typeof(Joiner))]
+[XmlInclude(typeof(Student))]
+public class Entity : ISerializable, IXmlSerializable
 {
     public Entity() { }
 
     public Entity(SerializationInfo info, StreamingContext context)
     {
-        name = (string)info.GetValue("Name", typeof(string));
-        surname = (string)info.GetValue("Surname", typeof(string));
+        Name = (string)info.GetValue("Name", typeof(string));
+        Surname = (string)info.GetValue("Surname", typeof(string));
         var type = (string)info.GetValue("BigNumbers", typeof(string));
         var typeToSet = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(x => x.GetTypes())
@@ -21,18 +32,46 @@ internal class Entity : ISerializable
         BigNumbers = (ICalculateBigNumbers)Activator.CreateInstance(typeToSet);
     }
 
+    public virtual void ReadXml(XmlReader reader)
+    {
+        if(!reader.HasAttributes)
+            throw new CustomException("Something went horribly wrong!");
+        Name = reader.GetAttribute("Name");
+        Surname = reader.GetAttribute("Surname");
+        var type = reader.GetAttribute("BigNumbers");
+        var typeToSet = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(x => x.GetTypes())
+            .Where(x => typeof(ICalculateBigNumbers).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract).ToList()
+            .FirstOrDefault(x => x.Name == type);
+        if (typeToSet == null)
+            throw new CustomException("This type does not exist!");
+        BigNumbers = (ICalculateBigNumbers)Activator.CreateInstance(typeToSet);
+    }
+
+    public virtual void WriteXml(XmlWriter writer)
+    {
+        writer.WriteAttributeString("Name", Name);
+        writer.WriteAttributeString("Surname", Surname);
+        writer.WriteAttributeString("BigNumbers", BigNumbers.GetType().Name);
+    }
+
+    public System.Xml.Schema.XmlSchema? GetSchema()
+    {
+        return null;
+    }
+
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-        info.AddValue("Name", name);
-        info.AddValue("Surname", surname);
-        info.AddValue("BigNumbers", BigNumbers.GetType().Name);
+        info.AddValue("Name", Name);
+        info.AddValue("Surname", Surname);
+        info.AddValue("BigNumbers", BigNumbers.GetType().FullName);
     }
 
     public static List<string> GetPossibleTypes()
     {
         return AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(x => x.GetTypes())
-            .Where(x => typeof(Entity).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
+            .Where(x => typeof(Entity).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false })
             .Select(x => x.Name)
             .ToList();
     }
@@ -41,7 +80,7 @@ internal class Entity : ISerializable
     {
         var typeToCreate = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(x => x.GetTypes())
-            .Where(x => typeof(Entity).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
+            .Where(x => typeof(Entity).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false })
             .FirstOrDefault(x => x.Name == type);
         if (typeToCreate == null)
             throw new CustomException("This type does not exist!");
@@ -50,7 +89,7 @@ internal class Entity : ISerializable
 
     public virtual string GetData()
     {
-        return $"Name: {name}\nSurname: {surname}\n";
+        return $"Name: {Name}\nSurname: {Surname}\n";
     }
 
     public virtual List<string> GetEditableData()
@@ -63,10 +102,10 @@ internal class Entity : ISerializable
         switch (data)
         {
             case "Name":
-                name = value;
+                Name = value;
                 return;
             case "Surname":
-                surname = value;
+                Surname = value;
                 return;
         }
     }
@@ -112,12 +151,12 @@ internal class Entity : ISerializable
                 if (typeToSet == null)
                     throw new CustomException("This type does not exist!");
                 BigNumbers = (ICalculateBigNumbers)Activator.CreateInstance(typeToSet);
-                break;
+                return;
         }
         throw new CustomException("This ability does not exist!");
     }
 
-    private string name;
-    private string surname;
-    private ICalculateBigNumbers BigNumbers;
+    public string Name { get; set; }
+    public string Surname { get; set; }
+    public ICalculateBigNumbers BigNumbers { get; set; }
 }

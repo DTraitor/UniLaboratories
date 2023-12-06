@@ -1,5 +1,10 @@
-﻿namespace DataAccessLayer.Abilities;
+﻿using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
+namespace DataAccessLayer.Abilities;
+
+[JsonDerivedType(typeof(CanCalculate), "CanCalculate")]
+[JsonDerivedType(typeof(CanNotCalculate), "CanNotCalculate")]
 public interface ICalculateBigNumbers
 {
     public string Calculate();

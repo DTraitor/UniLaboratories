@@ -1,7 +1,7 @@
 ﻿namespace DataAccessLayer.Providers;
 
-internal interface ISerializationProvider<T> where T : class
+internal interface ISerializationProvider
 {
-    public List<T> Read();
-    public void Write(List<T> entities);
+    public EntityList Read();
+    public void Write(EntityList entities);
 }

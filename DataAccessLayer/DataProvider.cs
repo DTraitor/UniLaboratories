@@ -10,18 +10,19 @@ public class DataProvider
         switch (serializerType)
         {
             case SerializerType.Json:
-                serializationProvider = new JsonProvider<Entity>(file);
+                serializationProvider = new JsonProvider(file);
                 break;
             case SerializerType.Xml:
-                serializationProvider = new XmlProvider<Entity>(file);
+                serializationProvider = new XmlProvider(file);
                 break;
             case SerializerType.Binary:
-                serializationProvider = new BinaryProvider<Entity>(file);
+                serializationProvider = new BinaryProvider(file);
                 break;
             default:
                 throw new CustomException("Something went horribly wrong!");
         }
-        entities = serializationProvider.Read();
+        entityList = serializationProvider.Read();
+        entities = entityList.Entities;
     }
 
     public List<string> GetEntityTypes()
@@ -32,7 +33,6 @@ public class DataProvider
     public void CreateEntity(string type)
     {
         entities.Add(Entity.Create(type));
-        serializationProvider.Write(entities);
     }
 
     public List<string> GetEditableData(int index)
@@ -43,13 +43,11 @@ public class DataProvider
     public void SetValue(int index, string data, string value)
     {
         entities[index].SetData(data, value);
-        serializationProvider.Write(entities);
     }
 
     public void DeleteEntity(int index)
     {
         entities.RemoveAt(index);
-        serializationProvider.Write(entities);
     }
 
     public string GetData(int index)
@@ -59,9 +57,7 @@ public class DataProvider
 
     public string UseAbility(int index, string ability)
     {
-        string s = entities[index].UseAbility(ability);
-        serializationProvider.Write(entities);
-        return s;
+        return entities[index].UseAbility(ability);
     }
 
     public List<string> GetAbilities(int index)
@@ -77,7 +73,6 @@ public class DataProvider
     public void SetAbilityType(int index, string ability, string type)
     {
         entities[index].SetAbilityType(ability, type);
-        serializationProvider.Write(entities);
     }
 
     public int GetEntityCount()
@@ -85,8 +80,24 @@ public class DataProvider
         return entities.Count;
     }
 
+    public void SaveChanges()
+    {
+        serializationProvider.Write(entityList);
+    }
+
+    public int CalculateSpecialTask()
+    {
+        return entities.Count(e =>
+        {
+            if (e is Student { Course: 5, Sex: "F", Residence: "Kyiv" })
+                return true;
+            return false;
+        });
+    }
+
+    private EntityList entityList;
     private List<Entity> entities;
-    private ISerializationProvider<Entity> serializationProvider;
+    private ISerializationProvider serializationProvider;
 
     public enum SerializerType
     {

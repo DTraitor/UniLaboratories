@@ -1,25 +1,28 @@
 ﻿using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace DataAccessLayer.Entities;
 
-internal class Photographer : Entity
+[Serializable]
+public class Photographer : Entity
 {
     public Photographer() : base() { }
 
     public Photographer(SerializationInfo info, StreamingContext context) : base(info, context)
     {
-        cameraModel = (string)info.GetValue("CameraModel", typeof(string));
+        CameraModel = (string)info.GetValue("CameraModel", typeof(string));
     }
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         base.GetObjectData(info, context);
-        info.AddValue("CameraModel", cameraModel);
+        info.AddValue("CameraModel", CameraModel);
     }
 
     public override string GetData()
     {
-        return base.GetData() + $"Camera model: {cameraModel}\n";
+        return base.GetData() + $"Camera model: {CameraModel}\n";
     }
 
     public override List<string> GetEditableData()
@@ -33,10 +36,22 @@ internal class Photographer : Entity
         switch (data)
         {
             case "Camera model":
-                cameraModel = value;
+                CameraModel = value;
                 break;
         }
     }
 
-    private string cameraModel;
+    public override void ReadXml(XmlReader reader)
+    {
+        base.ReadXml(reader);
+        CameraModel = reader.GetAttribute("CameraModel");
+    }
+
+    public override void WriteXml(XmlWriter writer)
+    {
+        base.WriteXml(writer);
+        writer.WriteAttributeString("CameraModel", CameraModel);
+    }
+
+    public string CameraModel;
 }

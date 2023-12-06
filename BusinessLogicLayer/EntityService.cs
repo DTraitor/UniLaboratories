@@ -64,5 +64,15 @@ public class EntityService
         dataProvider.SetAbilityType(index, ability, type);
     }
 
+    public void SaveChanges()
+    {
+        dataProvider.SaveChanges();
+    }
+
+    public int CalculateSpecialTask()
+    {
+        return dataProvider.CalculateSpecialTask();
+    }
+
     private readonly DataProvider dataProvider;
 }

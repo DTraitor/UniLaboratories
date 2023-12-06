@@ -4,28 +4,29 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace DataAccessLayer.Providers;
 
 #pragma warning disable SYSLIB0011
-internal class BinaryProvider<T> : ISerializationProvider<T> where T : class
+internal class BinaryProvider : ISerializationProvider
 {
     public BinaryProvider(string file)
     {
         stream = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
     }
 
-    public List<T> Read()
+    public EntityList Read()
     {
         using StreamReader reader = new StreamReader(stream, leaveOpen: true);
         try
         {
-            return (List<T>)new BinaryFormatter().Deserialize(reader.BaseStream);
+            return (EntityList)new BinaryFormatter().Deserialize(reader.BaseStream);
         }
         catch (SerializationException e)
         {
-            return new List<T>();
+            return new EntityList();
         }
     }
 
-    public void Write(List<T> entities)
+    public void Write(EntityList entities)
     {
+        stream.SetLength(0);
         using StreamWriter writer = new StreamWriter(stream, leaveOpen: true);
         new BinaryFormatter().Serialize(writer.BaseStream, entities);
     }

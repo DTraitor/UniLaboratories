@@ -17,7 +17,7 @@ public class ConsoleMenu
         {
             Console.WriteLine("Invalid input!");
         }
-        Console.WriteLine("Enter file name:");
+        Console.WriteLine("Enter file Name:");
         string file = Console.ReadLine();
 
         entityService = new EntityService(file, serializerType);
@@ -31,9 +31,10 @@ public class ConsoleMenu
             Console.WriteLine("3. Delete entity");
             Console.WriteLine("4. Get entity data");
             Console.WriteLine("5. Use ability");
-            Console.WriteLine("6. Exit");
+            Console.WriteLine("6. Calculate number of 5th course female students that live in Kyiv");
+            Console.WriteLine("7. Exit");
             int action;
-            while (!int.TryParse(Console.ReadLine(), out action) || action < 1 || action > 6)
+            while (!int.TryParse(Console.ReadLine(), out action) || action < 1 || action > 7)
             {
                 Console.WriteLine("Invalid input!");
             }
@@ -55,6 +56,9 @@ public class ConsoleMenu
                     UseAbility();
                     break;
                 case 6:
+                    SpecialTask();
+                    break;
+                case 7:
                     return;
             }
         }
@@ -89,7 +93,7 @@ public class ConsoleMenu
                 }
                 catch (CustomException e)
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine(e.Message);
                 }
             }
         }
@@ -111,11 +115,13 @@ public class ConsoleMenu
             entityService.SetAbilityType(entityService.GetEntityCount() - 1, ability, abilityTypes[abilityType - 1]);
         }
 
+        entityService.SaveChanges();
         Console.WriteLine("Entity created!");
     }
 
     private void EditEntity()
     {
+        Console.WriteLine($"Choose entity (1-{entityService.GetEntityCount()}):");
         int entityIndex;
         while (!int.TryParse(Console.ReadLine(), out entityIndex) || entityIndex < 1 || entityIndex > entityService.GetEntityCount())
         {
@@ -145,34 +151,29 @@ public class ConsoleMenu
             }
             catch (CustomException e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
         }
+
+        entityService.SaveChanges();
     }
 
     private void DeleteEntity()
     {
-        Console.WriteLine("Choose entity to delete:");
-        for (int i = 0; i < entityService.GetEntityCount(); i++)
-        {
-            Console.WriteLine($"{i + 1}. {entityService.GetData(i)}");
-        }
+        Console.WriteLine($"Choose entity (1-{entityService.GetEntityCount()}):");
         int entityIndex;
         while (!int.TryParse(Console.ReadLine(), out entityIndex) || entityIndex < 1 || entityIndex > entityService.GetEntityCount())
         {
             Console.WriteLine("Invalid input!");
         }
         entityService.DeleteEntity(entityIndex - 1);
+        entityService.SaveChanges();
         Console.WriteLine("Entity deleted!");
     }
 
     private void GetEntityData()
     {
-        Console.WriteLine("Choose entity:");
-        for (int i = 0; i < entityService.GetEntityCount(); i++)
-        {
-            Console.WriteLine($"{i + 1}. {entityService.GetData(i)}");
-        }
+        Console.WriteLine($"Choose entity (1-{entityService.GetEntityCount()}):");
         int entityIndex;
         while (!int.TryParse(Console.ReadLine(), out entityIndex) || entityIndex < 1 || entityIndex > entityService.GetEntityCount())
         {
@@ -183,11 +184,7 @@ public class ConsoleMenu
 
     private void UseAbility()
     {
-        Console.WriteLine("Choose entity:");
-        for (int i = 0; i < entityService.GetEntityCount(); i++)
-        {
-            Console.WriteLine($"{i + 1}. {entityService.GetData(i)}");
-        }
+        Console.WriteLine($"Choose entity (1-{entityService.GetEntityCount()}):");
         int entityIndex;
         while (!int.TryParse(Console.ReadLine(), out entityIndex) || entityIndex < 1 || entityIndex > entityService.GetEntityCount())
         {
@@ -205,8 +202,13 @@ public class ConsoleMenu
             Console.WriteLine("Invalid input!");
         }
         Console.WriteLine(entityService.UseAbility(entityIndex - 1, abilities[abilityIndex - 1]));
+        entityService.SaveChanges();
     }
 
+    private void SpecialTask()
+    {
+        Console.WriteLine($"Number of 5th course female students that live in Kyiv: {entityService.CalculateSpecialTask()}");
+    }
 
     private EntityService entityService;
 }
