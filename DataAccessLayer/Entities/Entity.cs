@@ -36,16 +36,20 @@ public class Entity : ISerializable, IXmlSerializable
     {
         if(!reader.HasAttributes)
             throw new CustomException("Something went horribly wrong!");
-        Name = reader.GetAttribute("Name");
-        Surname = reader.GetAttribute("Surname");
-        var type = reader.GetAttribute("BigNumbers");
-        var typeToSet = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x => typeof(ICalculateBigNumbers).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract).ToList()
-            .FirstOrDefault(x => x.Name == type);
-        if (typeToSet == null)
-            throw new CustomException("This type does not exist!");
-        BigNumbers = (ICalculateBigNumbers)Activator.CreateInstance(typeToSet);
+        if (reader.MoveToAttribute("Name") && reader.ReadAttributeValue())
+            Name = reader.Value;
+        if (reader.MoveToAttribute("Surname") && reader.ReadAttributeValue())
+            Surname = reader.Value;
+        if (reader.MoveToAttribute("BigNumbers") && reader.ReadAttributeValue())
+        {
+            var typeToSet = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(x => x.GetTypes())
+                .Where(x => typeof(ICalculateBigNumbers).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract).ToList()
+                .FirstOrDefault(x => x.Name == reader.Value);
+            if (typeToSet == null)
+                throw new CustomException("This type does not exist!");
+            BigNumbers = (ICalculateBigNumbers)Activator.CreateInstance(typeToSet);
+        }
     }
 
     public virtual void WriteXml(XmlWriter writer)

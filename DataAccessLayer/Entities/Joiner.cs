@@ -47,7 +47,8 @@ public class Joiner : Entity
     public override void ReadXml(XmlReader reader)
     {
         base.ReadXml(reader);
-        Price = int.Parse(reader.GetAttribute("Price"));
+        if (reader.MoveToAttribute("Price") && reader.ReadAttributeValue())
+            Price = int.Parse(reader.Value);
     }
 
     public override void WriteXml(XmlWriter writer)

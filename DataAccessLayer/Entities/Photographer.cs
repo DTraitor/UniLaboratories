@@ -44,7 +44,8 @@ public class Photographer : Entity
     public override void ReadXml(XmlReader reader)
     {
         base.ReadXml(reader);
-        CameraModel = reader.GetAttribute("CameraModel");
+        if (reader.MoveToAttribute("CameraModel") && reader.ReadAttributeValue())
+            CameraModel = reader.Value;
     }
 
     public override void WriteXml(XmlWriter writer)

@@ -137,19 +137,26 @@ public class Student : Entity
     public override void ReadXml(XmlReader reader)
     {
         base.ReadXml(reader);
-        Course = int.Parse(reader.GetAttribute("Course"));
-        StudentId = reader.GetAttribute("StudentID");
-        Sex = reader.GetAttribute("Sex");
-        Residence = reader.GetAttribute("Residence");
-        GradeBook = reader.GetAttribute("GradeBook");
-        var type = reader.GetAttribute("StudyAbility");
-        var typeToSet = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x => typeof(IStudy).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-            .FirstOrDefault(x => x.Name == type);
-        if (typeToSet == null)
-            throw new CustomException("This type does not exist!");
-        StudyAbility = (IStudy)Activator.CreateInstance(typeToSet);
+        if (reader.MoveToAttribute("Course") && reader.ReadAttributeValue())
+            Course = int.Parse(reader.Value);
+        if (reader.MoveToAttribute("StudentID") && reader.ReadAttributeValue())
+            StudentId = reader.Value;
+        if (reader.MoveToAttribute("Sex") && reader.ReadAttributeValue())
+            Sex = reader.Value;
+        if (reader.MoveToAttribute("Residence") && reader.ReadAttributeValue())
+            Residence = reader.Value;
+        if (reader.MoveToAttribute("GradeBook") && reader.ReadAttributeValue())
+            GradeBook = reader.Value;
+        if (reader.MoveToAttribute("StudyAbility") && reader.ReadAttributeValue())
+        {
+            var typeToSet = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(x => x.GetTypes())
+                .Where(x => typeof(IStudy).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
+                .FirstOrDefault(x => x.Name == reader.Value);
+            if (typeToSet == null)
+                throw new CustomException("This type does not exist!");
+            StudyAbility = (IStudy)Activator.CreateInstance(typeToSet);
+        }
     }
 
     public override void WriteXml(XmlWriter writer)
