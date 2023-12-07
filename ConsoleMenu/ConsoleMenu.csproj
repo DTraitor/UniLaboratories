@@ -7,9 +7,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Database\Database.csproj" />
-      <ProjectReference Include="..\Interaction\Interaction.csproj" />
-    </ItemGroup>
-
 </Project>
