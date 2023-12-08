@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "DataAcce
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicLayer", "BusinessLogicLayer\BusinessLogicLayer.csproj", "{A599C853-3968-496B-BC34-232B88445D9E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{23DEA30A-5282-4079-967C-2152D1A35A48}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{A599C853-3968-496B-BC34-232B88445D9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A599C853-3968-496B-BC34-232B88445D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A599C853-3968-496B-BC34-232B88445D9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23DEA30A-5282-4079-967C-2152D1A35A48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23DEA30A-5282-4079-967C-2152D1A35A48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23DEA30A-5282-4079-967C-2152D1A35A48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23DEA30A-5282-4079-967C-2152D1A35A48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

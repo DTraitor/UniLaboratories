@@ -1,77 +1,88 @@
 ﻿using DataAccessLayer;
+using DataAccessLayer.Entities;
 
 namespace BusinessLogicLayer;
 
 public class EntityService
 {
-    public EntityService(string file, DataProvider.SerializerType serializerType)
+    public EntityService(string file)
     {
-        dataProvider = new DataProvider(file, serializerType);
-    }
-
-    public int GetEntityCount()
-    {
-        return dataProvider.GetEntityCount();
+        dataProvider = new DataProvider(file);
+        dataProvider.Read();
     }
 
     public List<string> GetEntityTypes()
     {
-        return dataProvider.GetEntityTypes();
+        return Entity.GetPossibleTypes();
     }
 
     public void CreateEntity(string type)
     {
-        dataProvider.CreateEntity(type);
+        dataProvider.Entities.Add(Entity.Create(type));
     }
 
     public List<string> GetEditableData(int index)
     {
-        return dataProvider.GetEditableData(index);
+        return dataProvider.Entities[index].GetEditableData();
     }
 
     public void SetValue(int index, string data, string value)
     {
-        dataProvider.SetValue(index, data, value);
+        dataProvider.Entities[index].SetData(data, value);
     }
 
     public void DeleteEntity(int index)
     {
-        dataProvider.DeleteEntity(index);
+        dataProvider.Entities.RemoveAt(index);
     }
 
     public string GetData(int index)
     {
-        return dataProvider.GetData(index);
+        return dataProvider.Entities[index].GetData();
     }
 
     public string UseAbility(int index, string ability)
     {
-        return dataProvider.UseAbility(index, ability);
+        return dataProvider.Entities[index].UseAbility(ability);
     }
 
     public List<string> GetAbilities(int index)
     {
-        return dataProvider.GetAbilities(index);
+        return dataProvider.Entities[index].GetAbilities();
     }
 
     public List<string> GetAbilityTypes(int index, string ability)
     {
-        return dataProvider.GetAbilityTypes(index, ability);
+        return dataProvider.Entities[index].GetAbilityTypes(ability);
     }
 
     public void SetAbilityType(int index, string ability, string type)
     {
-        dataProvider.SetAbilityType(index, ability, type);
+        dataProvider.Entities[index].SetAbilityType(ability, type);
+    }
+
+    public int GetEntityCount()
+    {
+        return dataProvider.Entities.Count;
+    }
+    public int CalculateSpecialTask()
+    {
+        return dataProvider.Entities.Count(e =>
+        {
+            if (e is Student { Course: 5, Sex: "F", Residence: "Kyiv" })
+                return true;
+            return false;
+        });
+    }
+
+    public void Close()
+    {
+        dataProvider.Close();
     }
 
     public void SaveChanges()
     {
-        dataProvider.SaveChanges();
-    }
-
-    public int CalculateSpecialTask()
-    {
-        return dataProvider.CalculateSpecialTask();
+        dataProvider.Save();
     }
 
     private readonly DataProvider dataProvider;

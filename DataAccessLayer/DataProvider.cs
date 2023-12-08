@@ -1,108 +1,41 @@
-﻿using DataAccessLayer.Entities;
-using DataAccessLayer.Providers;
+﻿using System.Text.Json;
+using DataAccessLayer.Entities;
 
 namespace DataAccessLayer;
 
 public class DataProvider
 {
-    public DataProvider(string file, SerializerType serializerType)
+    public DataProvider(string file)
     {
-        switch (serializerType)
+        stream = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+    }
+
+    public void Read()
+    {
+        stream.Position = 0;
+        using StreamReader reader = new StreamReader(stream, leaveOpen: true);
+        try
         {
-            case SerializerType.Json:
-                serializationProvider = new JsonProvider(file);
-                break;
-            case SerializerType.Xml:
-                serializationProvider = new XmlProvider(file);
-                break;
-            case SerializerType.Binary:
-                serializationProvider = new BinaryProvider(file);
-                break;
-            default:
-                throw new CustomException("Something went horribly wrong!");
+            Entities = JsonSerializer.Deserialize<List<Entity>>(reader.ReadToEnd());
         }
-        entityList = serializationProvider.Read();
-        entities = entityList.Entities;
-    }
-
-    public List<string> GetEntityTypes()
-    {
-        return Entity.GetPossibleTypes();
-    }
-
-    public void CreateEntity(string type)
-    {
-        entities.Add(Entity.Create(type));
-    }
-
-    public List<string> GetEditableData(int index)
-    {
-        return entities[index].GetEditableData();
-    }
-
-    public void SetValue(int index, string data, string value)
-    {
-        entities[index].SetData(data, value);
-    }
-
-    public void DeleteEntity(int index)
-    {
-        entities.RemoveAt(index);
-    }
-
-    public string GetData(int index)
-    {
-        return entities[index].GetData();
-    }
-
-    public string UseAbility(int index, string ability)
-    {
-        return entities[index].UseAbility(ability);
-    }
-
-    public List<string> GetAbilities(int index)
-    {
-        return entities[index].GetAbilities();
-    }
-
-    public List<string> GetAbilityTypes(int index, string ability)
-    {
-        return entities[index].GetAbilityTypes(ability);
-    }
-
-    public void SetAbilityType(int index, string ability, string type)
-    {
-        entities[index].SetAbilityType(ability, type);
-    }
-
-    public int GetEntityCount()
-    {
-        return entities.Count;
-    }
-
-    public void SaveChanges()
-    {
-        serializationProvider.Write(entityList);
-    }
-
-    public int CalculateSpecialTask()
-    {
-        return entities.Count(e =>
+        catch (JsonException e)
         {
-            if (e is Student { Course: 5, Sex: "F", Residence: "Kyiv" })
-                return true;
-            return false;
-        });
+            Entities = new List<Entity>();
+        }
     }
 
-    private EntityList entityList;
-    private List<Entity> entities;
-    private ISerializationProvider serializationProvider;
-
-    public enum SerializerType
+    public void Save()
     {
-        Json,
-        Xml,
-        Binary
+        stream.SetLength(0);
+        using StreamWriter writer = new StreamWriter(stream, leaveOpen: true);
+        writer.Write(JsonSerializer.Serialize(Entities));
     }
+
+    public void Close()
+    {
+        stream.Close();
+    }
+
+    public List<Entity> Entities;
+    public FileStream stream;
 }

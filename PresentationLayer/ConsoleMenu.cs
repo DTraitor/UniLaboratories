@@ -7,20 +7,10 @@ public class ConsoleMenu
 {
     public void Start()
     {
-        Console.WriteLine("Choose serializer type:");
-        foreach (DataProvider.SerializerType type in Enum.GetValues<DataProvider.SerializerType>())
-        {
-            Console.WriteLine($"{(int)type}. {type}");
-        }
-        DataProvider.SerializerType serializerType;
-        while (!Enum.TryParse(Console.ReadLine(), out serializerType))
-        {
-            Console.WriteLine("Invalid input!");
-        }
-        Console.WriteLine("Enter file Name:");
+        Console.WriteLine("Enter json file name:");
         string file = Console.ReadLine();
 
-        entityService = new EntityService(file, serializerType);
+        entityService = new EntityService(file);
 
         while (true)
         {
