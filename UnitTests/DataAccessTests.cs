@@ -104,7 +104,7 @@ public class DataAccessTests
         Assert.That(_photographer.BigNumbers, Is.TypeOf<CanCalculate>());
         Assert.That(_photographer.GetData(), Is.EqualTo("Name: Joe\nSurname: Mama\nCamera model: Canon\n"));
         Assert.That(_photographer.GetEditableData().Count, Is.EqualTo(3));
-        Assert.That(_photographer.GetAbilities().Count, Is.EqualTo(1));
+        Assert.That(_photographer.GetAbilities().Count, Is.EqualTo(2));
     }
 
     [Test]

@@ -1,6 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
+using DataAccessLayer.Abilities;
 
 namespace DataAccessLayer.Entities;
 
@@ -30,6 +31,57 @@ public class Photographer : Entity
         return base.GetEditableData().Append("Camera model").ToList();
     }
 
+    public override List<string> GetAbilities()
+    {
+        return base.GetAbilities().Append("Camera").ToList();
+    }
+
+    public override string UseAbility(string ability)
+    {
+        switch (ability)
+        {
+            case "Camera":
+                return Camera.Photo();
+            default:
+                return base.UseAbility(ability);
+        }
+    }
+
+    public override List<string> GetAbilityTypes(string ability)
+    {
+        switch (ability)
+        {
+            case "Camera":
+                return new List<string>() { "ProfessionalCamera", "PhoneCamera" };
+            default:
+                return base.GetAbilityTypes(ability);
+        }
+    }
+
+    public override void SetAbilityType(string ability, string type)
+    {
+        switch (ability)
+        {
+            case "Camera":
+                switch (type)
+                {
+                    case "ProfessionalCamera":
+                        Camera = new ProfessionalCamera();
+                        break;
+                    case "PhoneCamera":
+                        Camera = new PhoneCamera();
+                        break;
+                    default:
+                        base.SetAbilityType(ability, type);
+                        break;
+                }
+                break;
+            default:
+                base.SetAbilityType(ability, type);
+                break;
+        }
+    }
+
     public override void SetData(string data, string value)
     {
         base.SetData(data, value);
@@ -55,4 +107,5 @@ public class Photographer : Entity
     }
 
     public string CameraModel;
+    public ICamera Camera;
 }
